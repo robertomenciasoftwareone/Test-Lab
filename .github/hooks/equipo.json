@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/proteger.sh",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\proteger.ps1",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/registrar.sh",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\registrar.ps1",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ]
+  }
+}

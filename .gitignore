@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+TestResults/
+coverage-report/
+*.user
+informe.md
+logs/
