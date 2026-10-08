@@ -38,6 +38,21 @@ public class CalculadoraNotasTests
     }
 
     [Fact]
+    public void Generar_CreaUnInformeIndividualConTodasLasNotas()
+    {
+        var alumno = new Alumno("A001", 8m, 7m, 6m);
+
+        var informe = Assert.Single(Informe.Generar(new[] { alumno }));
+
+        Assert.Equal("A001", informe.Id);
+        Assert.Equal(8m, informe.Practicas);
+        Assert.Equal(7m, informe.Parcial);
+        Assert.Equal(6m, informe.Examen);
+        Assert.Equal(6.8m, informe.Nota);
+        Assert.Equal("Aprobado", informe.Calificacion);
+    }
+
+    [Fact]
     public void Generar_Con26Alumnos_ConcedeDosMatriculasYDesempataPorExamen()
     {
         var alumnos = Enumerable.Range(1, 23)

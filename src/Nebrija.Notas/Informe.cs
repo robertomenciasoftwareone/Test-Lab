@@ -9,11 +9,20 @@ namespace Nebrija.Notas;
 /// <param name="Examen">Nota del examen final.</param>
 public record Alumno(string Id, decimal Practicas, decimal Parcial, decimal Examen);
 
-/// <summary>Representa la nota calculada y la calificación mostrada en el informe.</summary>
+/// <summary>Representa el informe individual de un alumno.</summary>
 /// <param name="Id">Identificador del alumno.</param>
+/// <param name="Practicas">Nota de prácticas.</param>
+/// <param name="Parcial">Nota del examen parcial.</param>
+/// <param name="Examen">Nota del examen final.</param>
 /// <param name="Nota">Nota final calculada.</param>
 /// <param name="Calificacion">Texto de calificación, que puede incluir Matrícula de Honor.</param>
-public record FilaInforme(string Id, decimal Nota, string Calificacion);
+public record InformeAlumno(
+    string Id,
+    decimal Practicas,
+    decimal Parcial,
+    decimal Examen,
+    decimal Nota,
+    string Calificacion);
 
 /// <summary>Lee los datos del alumnado y genera el informe de calificaciones de la asignatura.</summary>
 public static class Informe
@@ -49,7 +58,7 @@ public static class Informe
     /// </remarks>
     /// <param name="alumnos">Alumnos cuyas calificaciones se incluirán en el informe.</param>
     /// <returns>Las filas del informe con la nota final y su calificación correspondiente.</returns>
-    public static List<FilaInforme> Generar(IEnumerable<Alumno> alumnos)
+    public static List<InformeAlumno> Generar(IEnumerable<Alumno> alumnos)
     {
         var resultados = alumnos
             .Select(alumno => new
@@ -70,8 +79,11 @@ public static class Informe
             .ToHashSet();
 
         return resultados
-            .Select((resultado, indice) => new FilaInforme(
+            .Select((resultado, indice) => new InformeAlumno(
                 resultado.Alumno.Id,
+                resultado.Alumno.Practicas,
+                resultado.Alumno.Parcial,
+                resultado.Alumno.Examen,
                 resultado.Nota,
                 indicesConMatricula.Contains(indice) ? "Matrícula de Honor" : CalculadoraNotas.Calificacion(resultado.Nota)))
             .ToList();
