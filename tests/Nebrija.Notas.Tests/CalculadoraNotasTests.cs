@@ -4,10 +4,14 @@ namespace Nebrija.Notas.Tests;
 
 public class CalculadoraNotasTests
 {
-    [Fact]
-    public void MediaPonderada()
+    [Theory]
+    [InlineData(8.0, 6.0, 7.0, 7.1)]
+    [InlineData(8.0, 6.0, 7.08, 7.1)]
+    public void MediaPonderada_YRedondeadaAUnDecimal(double practicas, double parcial, double examen, double esperado)
     {
-        Assert.Equal(7.1m, CalculadoraNotas.CalcularNotaFinal(8m, 6m, 7m));
+        Assert.Equal(
+            (decimal)esperado,
+            CalculadoraNotas.CalcularNotaFinal((decimal)practicas, (decimal)parcial, (decimal)examen));
     }
 
     [Fact]
@@ -31,5 +35,38 @@ public class CalculadoraNotasTests
     public void Calificacion_SegunNota(double nota, string esperado)
     {
         Assert.Equal(esperado, CalculadoraNotas.Calificacion((decimal)nota));
+    }
+
+    [Fact]
+    public void Generar_Con26Alumnos_ConcedeDosMatriculasYDesempataPorExamen()
+    {
+        var alumnos = Enumerable.Range(1, 23)
+            .Select(numero => new Alumno($"A{numero}", 8m, 8m, 8m))
+            .Concat(new[]
+            {
+                new Alumno("CandidatoMenor", 10m, 10m, 8m),
+                new Alumno("CandidatoEmpateExamenBajo", 10m, 10m, 9m),
+                new Alumno("CandidatoEmpateExamenAlto", 10m, 7.5m, 10m)
+            });
+
+        var informe = Informe.Generar(alumnos);
+
+        Assert.Equal(2, informe.Count(fila => fila.Calificacion == "Matrícula de Honor"));
+        Assert.Equal("Sobresaliente", informe.Single(fila => fila.Id == "CandidatoMenor").Calificacion);
+        Assert.Equal("Matrícula de Honor", informe.Single(fila => fila.Id == "CandidatoEmpateExamenBajo").Calificacion);
+        Assert.Equal("Matrícula de Honor", informe.Single(fila => fila.Id == "CandidatoEmpateExamenAlto").Calificacion);
+    }
+
+    [Theory]
+    [InlineData(20, 1)]
+    [InlineData(21, 2)]
+    public void Generar_ConcedeUnaMatriculaPorCada20AlumnosOTroPorFraccion(int numeroAlumnos, int matriculasEsperadas)
+    {
+        var alumnos = Enumerable.Range(1, numeroAlumnos)
+            .Select(numero => new Alumno($"A{numero}", 10m, 10m, 10m));
+
+        var informe = Informe.Generar(alumnos);
+
+        Assert.Equal(matriculasEsperadas, informe.Count(fila => fila.Calificacion == "Matrícula de Honor"));
     }
 }
